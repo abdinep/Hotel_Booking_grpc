@@ -1,31 +1,40 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/abdinep/Hotel_Booking_grpc/user_service/internal/repository"
 	"github.com/abdinep/Hotel_Booking_grpc/user_service/model"
 	middleware "github.com/abdinep/Hotel_Booking_grpc/user_service/pkg/middlerware-http"
+	hotel_service "github.com/abdinep/Hotel_Booking_grpc/user_service/proto/client"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc"
 )
 
 type UserService interface {
 	RegisterUser(name, email, password, mobile string) error
 	LoginUser(email, password string) (string, error)
 	UserGetInfo(id uint) (model.User, error)
-	// GetHotelRooms() ([]*hotel_service.Room, error)
+	GetHotelRooms() ([]*hotel_service.Room, error)
 	UserExists(userID uint32) bool
 }
 type userService struct {
-	repo repository.UserRepository
+	repo        repository.UserRepository
+	hotelClient hotel_service.HotelServiceClient
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
-	return &userService{repo: repo}
+func NewUserService(repo repository.UserRepository, hotelConn *grpc.ClientConn) UserService {
+	hotelClient := hotel_service.NewHotelServiceClient(hotelConn)
+	return &userService{
+		repo:        repo,
+		hotelClient: hotelClient,
+	}
 }
 func (s *userService) RegisterUser(name, email, password, mobile string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -72,6 +81,22 @@ func (s *userService) UserGetInfo(id uint) (model.User, error) {
 		return model.User{}, err
 	}
 	return user, nil
+}
+func (u *userService) GetHotelRooms() ([]*hotel_service.Room, error) {
+	log.Println("Starting GetHotelRooms function")
+	req := &hotel_service.GetRoomsRequest{}
+	log.Println("Created GetRoomsRequest")
+
+	start := time.Now()
+	resp, err := u.hotelClient.GetRooms(context.Background(), req)
+	if err != nil {
+		log.Printf("Error calling GetRooms: %v\n", err)
+		return nil, err
+	}
+	duration := time.Since(start)
+	log.Printf("Received response from GetRooms: %v rooms found in %v\n", len(resp.Rooms), duration)
+	return resp.Rooms, nil
+
 }
 func (s *userService) UserExists(userID uint32) bool {
 	logrus.WithFields(logrus.Fields{

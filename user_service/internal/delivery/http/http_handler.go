@@ -22,7 +22,7 @@ func (u *UserHandler) UserRouters(r *gin.Engine) {
 	r.POST("register", u.RegisterUser)
 	r.POST("login", u.LoginUser)
 	r.GET("profile", middleware.AuthMiddleware(), u.UserGetInfo)
-	// r.GET("hotels", middleware.AuthMiddleware(), u.GetHotelRooms)
+	r.GET("hotels", middleware.AuthMiddleware(), u.GetHotelRooms)
 }
 
 func (u *UserHandler) RegisterUser(c *gin.Context) {
@@ -77,24 +77,24 @@ func (u *UserHandler) UserGetInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, userData)
 }
 
-// func (u *UserHandler) GetHotelRooms(c *gin.Context) {
-// 	rooms, err := u.userService.GetHotelRooms()
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get hotel rooms", "message": err.Error()})
-// 		return
-// 	}
+func (u *UserHandler) GetHotelRooms(c *gin.Context) {
+	rooms, err := u.userService.GetHotelRooms()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get hotel rooms", "message": err.Error()})
+		return
+	}
 
-// 	var roomData []gin.H
-// 	for _, room := range rooms {
-// 		roomData = append(roomData, gin.H{
-// 			"room_number": room.RoomNumber,
-// 			"category":    room.Category,
-// 			"name":        room.Availability,
-// 			"price":       room.Price,
-// 		})
-// 	}
+	var roomData []gin.H
+	for _, room := range rooms {
+		roomData = append(roomData, gin.H{
+			"room_number": room.RoomNumber,
+			"category":    room.Category,
+			"name":        room.Availability,
+			"price":       room.Price,
+		})
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"rooms": roomData,
-// 	})
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"rooms": roomData,
+	})
+}

@@ -43,7 +43,7 @@ func main() {
 
 	db := postgres.InitDatabase()
 	repo := repository.NewUserRepository(db)
-	userService := service.NewUserService(repo)
+	userService := service.NewUserService(repo, conn)
 	grpchandler := grpcphandle.NewUserHandler(userService)
 	httpHandler := httphandle.NewUserHandler(userService)
 
