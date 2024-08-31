@@ -52,24 +52,24 @@ func (u *UserHandler) UserGetInfo(ctx context.Context, req *pb.UserGetInfoReques
 		Mobile: user.Mobile,
 	}}, nil
 }
-// func (u *UserHandler) GetHotelRooms(ctx context.Context, req *pb.GetHotelRoomsRequest) (*pb.GetHotelRoomsResponse, error) {
-// 	rooms, err := u.service.GetHotelRooms()
-// 	if err != nil {
-// 		return nil, status.Error(codes.Internal, err.Error())
-// 	}
+func (u *UserHandler) GetHotelRooms(ctx context.Context, req *pb.GetHotelRoomsRequest) (*pb.GetHotelRoomsResponse, error) {
+	rooms, err := u.service.GetHotelRooms()
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-// 	var pbRooms []*pb.Room
-// 	for _, room := range rooms {
-// 		pbRooms = append(pbRooms, &pb.Room{
-// 			RoomNumber:   room.RoomNumber,
-// 			Category:     room.Category,
-// 			Availability: room.Availability,
-// 			Price:        room.Price,
-// 		})
-// 	}
+	var pbRooms []*pb.Room
+	for _, room := range rooms {
+		pbRooms = append(pbRooms, &pb.Room{
+			RoomNumber:   room.RoomNumber,
+			Category:     room.Category,
+			Availability: room.Availability,
+			Price:        room.Price,
+		})
+	}
 
-// 	return &pb.GetHotelRoomsResponse{Rooms: pbRooms}, nil
-// }
+	return &pb.GetHotelRoomsResponse{Rooms: pbRooms}, nil
+}
 func (u *UserHandler) CheckUser(ctx context.Context, req *pb.CheckUserRequest) (*pb.CheckUserResponse, error) {
 	fmt.Println("user check")
 	exists := u.service.UserExists(req.UserId)
