@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/abdinep/Hotel_Booking_grpc/hotel_service/model"
 	"gorm.io/gorm"
@@ -12,8 +13,8 @@ type RoomRepository interface {
 	GetRoom(roomNumber string) (model.Room, error)
 	UpdateRoom(room model.Room) error
 	DeleteRoom(roomNumber string) error
-	GetRooms() ([]model.Room, error) 
-	RoomAvailable(roomID string)bool
+	GetRooms() ([]model.Room, error)
+	RoomAvailable(roomID string) bool
 }
 
 type roomRepository struct {
@@ -33,6 +34,7 @@ func (r *roomRepository) AddRoom(room model.Room) error {
 
 func (r *roomRepository) GetRoom(roomNumber string) (model.Room, error) {
 	var room model.Room
+	fmt.Println(roomNumber)
 	if err := r.db.First(&room, "room_number = ?", roomNumber).Error; err != nil {
 		return model.Room{}, errors.New("room not found")
 	}
@@ -53,7 +55,7 @@ func (r *roomRepository) DeleteRoom(roomNumber string) error {
 	return nil
 }
 
-func (r *roomRepository) GetRooms() ([]model.Room, error) { // Add this function
+func (r *roomRepository) GetRooms() ([]model.Room, error) {
 	var rooms []model.Room
 	if err := r.db.Find(&rooms).Error; err != nil {
 		return nil, errors.New("failed to get rooms")
